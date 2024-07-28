@@ -1,5 +1,7 @@
 # Rule Engine AST Guide
 
+![Alt text](images/RuleEngine.png)
+
 A simple 3-tier rule engine application using Abstract Syntax Tree (AST) to determine user eligibility based on attributes like age, department, income, and spend.
 
 ## Table of Contents
