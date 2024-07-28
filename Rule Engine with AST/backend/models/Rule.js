@@ -1,14 +1,19 @@
 const mongoose = require("mongoose");
 
-const nodeSchema = new mongoose.Schema({
-  type: { type: String, required: true },
-  value: { type: String, required: true },
-  left: { type: mongoose.Schema.Types.Mixed, default: null },
-  right: { type: mongoose.Schema.Types.Mixed, default: null },
+const RuleSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  ruleString: {
+    type: String,
+    required: true,
+  },
+  ast: {
+    type: Object,
+    required: true,
+  },
 });
 
-const ruleSchema = new mongoose.Schema({
-  ast: { type: nodeSchema, required: true },
-});
-
-module.exports = mongoose.model("Rule", ruleSchema);
+module.exports = mongoose.model("Rule", RuleSchema);

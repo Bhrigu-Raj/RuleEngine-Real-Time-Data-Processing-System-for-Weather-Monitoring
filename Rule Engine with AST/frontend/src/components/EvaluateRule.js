@@ -1,24 +1,26 @@
 import React, { useState } from "react";
 
-const EvaluateRule = () => {
+function EvaluateRule() {
   const [ast, setAst] = useState("");
   const [data, setData] = useState("");
-  const [response, setResponse] = useState(null);
+  const [result, setResult] = useState(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/rules/evaluate_rule", {
+      const parsedAst = JSON.parse(ast);
+      const parsedData = JSON.parse(data);
+
+      const response = await fetch("http://localhost:5000/api/evaluate-rule", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ast, data: JSON.parse(data) }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ast: parsedAst, data: parsedData }),
       });
-      const resData = await res.json();
-      setResponse(resData);
+      const responseData = await response.json();
+      setResult(responseData);
     } catch (error) {
-      console.error("Error evaluating rule:", error);
+      console.error("Error:", error);
+      setResult({ success: false, error: error.message });
     }
   };
 
@@ -29,18 +31,22 @@ const EvaluateRule = () => {
         <textarea
           value={ast}
           onChange={(e) => setAst(e.target.value)}
-          placeholder="Enter AST"
+          placeholder="AST (JSON format)"
+          rows={5}
+          required
         />
         <textarea
           value={data}
           onChange={(e) => setData(e.target.value)}
-          placeholder="Enter data as JSON"
+          placeholder="Data (JSON format)"
+          rows={5}
+          required
         />
         <button type="submit">Evaluate Rule</button>
       </form>
-      {response && <pre>{JSON.stringify(response, null, 2)}</pre>}
+      {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
     </div>
   );
-};
+}
 
 export default EvaluateRule;

@@ -1,70 +1,97 @@
-# Getting Started with Create React App
+# Rule Engine AST
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A simple 3-tier rule engine application using Abstract Syntax Tree (AST) to determine user eligibility based on attributes like age, department, income, and spend.
 
-## Available Scripts
+## Table of Contents
 
-In the project directory, you can run:
+1. [Overview](#overview)
+2. [Features](#features)
+3. [Technology Stack](#technology-stack)
+4. [Prerequisites](#prerequisites)
+5. [Installation](#installation)
+6. [Running the Application](#running-the-application)
+7. [API Endpoints](#api-endpoints)
+8. [Design Choices](#design-choices)
+9. [Project Structure](#project-structure)
+10. [Future Improvements](#future-improvements)
 
-### `npm start`
+## Overview
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+This application provides a rule engine that uses Abstract Syntax Trees (AST) to represent conditional rules. It allows for dynamic creation, combination, and modification of these rules, as well as evaluation of data against the rules.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Features
 
-### `npm test`
+- Create rules using a string representation
+- Combine multiple rules into a single AST
+- Evaluate data against rules
+- Simple UI for interacting with the rule engine
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Technology Stack
 
-### `npm run build`
+- Frontend: React.js
+- Backend: Node.js with Express.js
+- Database: MongoDB
+- State Management: React Hooks
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Prerequisites
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Before you begin, ensure you have met the following requirements:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+- Node.js (v14.0.0 or later)
+- npm (v6.0.0 or later)
+- MongoDB (v4.0 or later)
 
-### `npm run eject`
+## Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+1. Clone the repository:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+2. Install server dependencies:
+   cd backend npm install
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+3. Install client dependencies:
+   cd ../frontend npm install
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Running the Application
 
-## Learn More
+1. Start the MongoDB service on your machine.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+2. Start the server:
+   cd server npm start
+   The server will run on `http://localhost:5000`.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+3. In a new terminal, start the client:
+   cd client npm start
 
-### Code Splitting
+The client will run on `http://localhost:3000`.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+4. Open your browser and navigate to `http://localhost:3000` to use the application.
 
-### Analyzing the Bundle Size
+## API Endpoints
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+- POST `/api/create-rule`: Create a new rule
+- POST `/api/combine-rules`: Combine multiple rules
+- POST `/api/evaluate-rule`: Evaluate data against a rule
 
-### Making a Progressive Web App
+For detailed API documentation, refer to the [API Documentation](API_DOCUMENTATION.md) file.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Design Choices
 
-### Advanced Configuration
+1. **MERN Stack**: We chose the MERN (MongoDB, Express.js, React.js, Node.js) stack for its flexibility, scalability, and the ability to use JavaScript throughout the stack.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+2. **Abstract Syntax Tree (AST)**: ASTs are used to represent rules because they provide a flexible and powerful way to structure and evaluate complex logical expressions.
 
-### Deployment
+3. **Modular Architecture**: The backend is structured with separate routes, models, and utility functions for better organization and maintainability.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+4. **React Hooks**: We use React Hooks for state management in the frontend, providing a clean and efficient way to handle component state and side effects.
 
-### `npm run build` fails to minify
+5. **RESTful API**: The backend exposes a RESTful API, making it easy to interact with the rule engine from various clients.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+6. **MongoDB**: MongoDB was chosen as the database for its flexibility in storing complex data structures like ASTs.
+
+7. **Error Handling**: Comprehensive error handling is implemented both in the frontend and backend to provide clear feedback to users and developers.
+
+8. **Minimal UI Design**: The frontend uses a clean, minimal design to focus on functionality while maintaining good user experience.
+
+## Project Structure
+
+rule-engine-ast/ ├── frontend/ │ ├── public/ │ ├── src/ │ │ ├── components/ │ │ ├── App.js │ │ ├── App.css │ │ └── index.js │ └── package.json ├── backend/ │ ├── models/ │ ├── routes/ │ ├── utils/ │ ├── config.js │ ├── server.js │ └── package.json └── README.md

@@ -1,15 +1,20 @@
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
+const { port, mongoUri } = require("./config/config");
 const weatherRoutes = require("./routes/weatherRoutes");
-require("dotenv").config();
 
 const app = express();
 
-app.use("/api/weather", weatherRoutes);
+app.use(cors());
+app.use(express.json());
+app.use("/api", weatherRoutes);
 
-mongoose.connect("mongodb://localhost/weatherApp", {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose
+  .connect(mongoUri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => console.log("Connected to MongoDB"))
+  .catch((err) => console.error("Failed to connect to MongoDB", err));
+
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
-
-module.exports = app;

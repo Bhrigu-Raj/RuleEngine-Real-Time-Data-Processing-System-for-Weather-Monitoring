@@ -7,7 +7,7 @@ import "./App.css";
 function App() {
   return (
     <div className="App">
-      <h1>Rule Engine</h1>
+      <h1>Rule Engine AST</h1>
       <CreateRule />
       <CombineRules />
       <EvaluateRule />
