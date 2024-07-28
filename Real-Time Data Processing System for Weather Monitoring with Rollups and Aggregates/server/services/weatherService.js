@@ -1,84 +1,69 @@
-// const fetch = require("node-fetch");
+const axios = require("axios");
+const config = require("config");
 const WeatherData = require("../models/WeatherData");
+const DailySummary = require("../models/DailySummary");
+const {
+  kelvinToCelsius,
+  getDominantCondition,
+} = require("../utils/weatherUtils");
 
-const openWeatherApiKey = process.env.OPENWEATHER_API_KEY;
+const API_KEY = process.env.OPENWEATHER_API_KEY;
+const cities = config.get("cities");
 
-const fetchWeatherData = async (city) => {
-  const response = await fetch(
-    `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${openWeatherApiKey}`
-  );
-  if (!response.ok) {
-    const errorData = await response.json();
-    throw new Error(errorData.message || "Failed to fetch weather data");
-  }
-  const data = await response.json();
-  return data;
-};
+const fetchWeatherData = async () => {
+  for (const city of cities) {
+    try {
+      const response = await axios.get(
+        `http://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}`
+      );
+      const { main, weather, dt } = response.data;
 
-const calculateDailyAggregates = (weatherData) => {
-  const dailySummary = {
-    averageTemp: 0,
-    maxTemp: -Infinity,
-    minTemp: Infinity,
-    weatherConditions: {},
-  };
+      const weatherData = new WeatherData({
+        city,
+        main: weather[0].main,
+        temp: kelvinToCelsius(main.temp),
+        feels_like: kelvinToCelsius(main.feels_like),
+        dt: new Date(dt * 1000),
+      });
 
-  weatherData.forEach((data) => {
-    const tempCelsius = convertKelvinToCelsius(data.main.temp);
-
-    dailySummary.averageTemp += tempCelsius;
-    dailySummary.maxTemp = Math.max(dailySummary.maxTemp, tempCelsius);
-    dailySummary.minTemp = Math.min(dailySummary.minTemp, tempCelsius);
-
-    const condition = data.weather[0].main;
-    if (!dailySummary.weatherConditions[condition]) {
-      dailySummary.weatherConditions[condition] = 0;
+      await weatherData.save();
+      console.log(`Weather data saved for ${city}`);
+    } catch (error) {
+      console.error(`Error fetching weather data for ${city}:`, error.message);
     }
-    dailySummary.weatherConditions[condition]++;
-  });
-
-  dailySummary.averageTemp = (
-    dailySummary.averageTemp / weatherData.length
-  ).toFixed(2);
-
-  dailySummary.dominantCondition = Object.keys(
-    dailySummary.weatherConditions
-  ).reduce((a, b) =>
-    dailySummary.weatherConditions[a] > dailySummary.weatherConditions[b]
-      ? a
-      : b
-  );
-
-  return dailySummary;
-};
-
-const convertKelvinToCelsius = (kelvin) => (kelvin - 273.15).toFixed(2);
-
-const storeDailySummary = async (city, summary) => {
-  const newSummary = new WeatherData({
-    city,
-    date: new Date(),
-    ...summary,
-  });
-  await newSummary.save();
-};
-
-const checkThresholds = (weatherData, thresholds) => {
-  const tempCelsius = convertKelvinToCelsius(weatherData.main.temp);
-  const alerts = [];
-
-  if (tempCelsius > thresholds.temperature) {
-    alerts.push(
-      `Temperature in ${weatherData.name} is above ${thresholds.temperature}°C`
-    );
   }
+};
 
-  return alerts;
+const generateDailySummary = async () => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  for (const city of cities) {
+    const dailyData = await WeatherData.find({
+      city,
+      dt: { $gte: today },
+    });
+
+    if (dailyData.length > 0) {
+      const temps = dailyData.map((data) => data.temp);
+      const conditions = dailyData.map((data) => data.main);
+
+      const summary = new DailySummary({
+        city,
+        date: today,
+        avgTemp: temps.reduce((a, b) => a + b) / temps.length,
+        maxTemp: Math.max(...temps),
+        minTemp: Math.min(...temps),
+        dominantCondition: getDominantCondition(conditions),
+      });
+
+      await summary.save();
+      console.log(`Daily summary generated for ${city}`);
+    }
+  }
 };
 
 module.exports = {
   fetchWeatherData,
-  calculateDailyAggregates,
-  storeDailySummary,
-  checkThresholds,
+  generateDailySummary,
 };

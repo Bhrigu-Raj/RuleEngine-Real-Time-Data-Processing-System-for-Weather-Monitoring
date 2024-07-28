@@ -1,25 +1,31 @@
-const Alert = require("../models/alertModel");
-const { alertThresholds } = require("../config/config");
+const config = require("config");
+const WeatherData = require("../models/WeatherData");
+
+const temperatureThreshold = config.get("temperatureThreshold");
+const consecutiveUpdates = config.get("consecutiveUpdates");
 
 const checkAlerts = async () => {
-  const latestWeather = await Weather.find().sort({ dt: -1 }).limit(1);
+  const cities = config.get("cities");
+  const alerts = [];
 
-  if (latestWeather.length > 0) {
-    const weather = latestWeather[0];
+  for (const city of cities) {
+    const recentData = await WeatherData.find({ city })
+      .sort({ dt: -1 })
+      .limit(consecutiveUpdates);
 
-    if (weather.temperature > alertThresholds.temperature) {
-      await Alert.create({
-        city: weather.city,
-        temperature: weather.temperature,
-        timestamp: weather.dt,
-        message: `Temperature alert for ${weather.city}: ${weather.temperature} °C`,
-      });
+    if (
+      recentData.length === consecutiveUpdates &&
+      recentData.every((data) => data.temp > temperatureThreshold)
+    ) {
+      alerts.push(
+        `Alert: Temperature in ${city} has exceeded ${temperatureThreshold}°C for ${consecutiveUpdates} consecutive updates.`
+      );
     }
   }
+
+  return alerts;
 };
 
-const getAlerts = async () => {
-  return await Alert.find().sort({ timestamp: -1 });
+module.exports = {
+  checkAlerts,
 };
-
-module.exports = { checkAlerts, getAlerts };
